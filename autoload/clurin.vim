@@ -20,11 +20,21 @@ let s:default_defs = {
 \}
 
 function! s:getdefs() abort " {{{
-  let defs = []
-  call extend(defs, s:default_defs['-'])
-  if has_key(s:default_defs, &filetype)
-    call extend(defs, s:default_defs[&filetype])
+  if has_key(g:, 'clurin#config') && type(g:clurin#config) == type({})
+    let p = [g:clurin#config, s:default_defs]
+  else
+    let p = [s:default_defs]
   endif
+
+  let defs = []
+  for d in p
+    for ft in [&filetype, '-']
+      if has_key(d, ft)
+        call extend(defs, d[ft])
+      endif
+    endfor
+  endfor
+
   return defs
 endfunction " }}}
 
@@ -37,7 +47,6 @@ endfunction " }}}
 function! s:match(conf) abort " {{{
   let col = col('.')
   let line = getline('.')
-  let g:c = a:conf
   for i in range(len(a:conf.def))
     let d = a:conf.def[i]
     let l1 = -1
@@ -48,7 +57,7 @@ function! s:match(conf) abort " {{{
       endif
       let l2 = matchend(line, d.pattern, l1)
       if col <= l2
-        let text = substitute(line[l1 : l2], d.pattern, '\=submatch(1)', '')
+        let text = substitute(line[l1 : l2-1], d.pattern, '\=submatch(1)', '')
         return {'start': l1, 'end': l2, 'len': l2-l1, 'index': i, 'conf': a:conf, 'text': text}
       endif
     endwhile
@@ -78,7 +87,6 @@ function! s:replace(m, cnt, rev) abort " {{{
     let idx = a:m.index + a:cnt
   endif
   if get(a:m.conf, 'cyclic', 1)
-    let g:c = a:m
     let idx = s:mod(idx, len(a:m.conf.def))
   elseif idx < 0
     let idx = 0
@@ -110,7 +118,7 @@ endfunction " }}}
 
 function! s:def_normalize_elm(d) abort " {{{
   if type(a:d) == type('')
-    return {'pattern': printf('\(\<%s\>\)', a:d), 'replace': a:d}
+    return {'pattern': printf('\(%s\)', a:d), 'replace': a:d}
   else
     return a:d
   endif
@@ -136,6 +144,7 @@ function! clurin#pa(cnt, rev) abort " {{{
     return 0
   endif
 
+"  let g:clurin#matchdef = mb " @debug
   call s:replace(mb, a:cnt, a:rev)
 
   silent! call repeat#set(printf(":call clurin#pa(%d,%d)\<CR>", a:cnt, a:rev))
