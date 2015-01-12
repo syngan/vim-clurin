@@ -3,11 +3,16 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+" May でぼける悲しみ.
+"   \ ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 let s:default_defs = {
 \ '-' : [
     \ ['true', 'false'],
-    \ ['Jan', 'Feb', 'Mar', 'Apl', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    \ ['on', 'off'],
+    \ ['enable', 'disable'],
+    \ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     \ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    \ ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     \],
 \ 'tex' : [
     \ { 'cyclic': 0,
@@ -16,8 +21,14 @@ let s:default_defs = {
     \ ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'],
     \ ['leftarrow', 'Leftarrow', 'longleftarrow', 'Longleftarrow'],
     \ ['longrightarrow', 'Longrightarrow', 'rightarrow', 'Rightarrow'],
+    \ ['itemize', 'enumerate', 'description'],
+    \ ['\begin', '\end'],
     \],
 \}
+
+function! s:escape(pattern) " {{{
+    return escape(a:pattern, '\~ .*^[''$')
+endfunction " }}}
 
 function! s:getdefs() abort " {{{
   if has_key(g:, 'clurin#config') && type(g:clurin#config) == type({})
@@ -118,7 +129,11 @@ endfunction " }}}
 
 function! s:def_normalize_elm(d) abort " {{{
   if type(a:d) == type('')
-    return {'pattern': printf('\(%s\)', a:d), 'replace': a:d}
+    if a:d =~# '^\k\+$'
+      return {'pattern': printf('\<\(%s\)\>', s:escape(a:d)), 'replace': a:d}
+    else
+      return {'pattern': printf('\(%s\)', s:escape(a:d)), 'replace': a:d}
+    endif
   else
     return a:d
   endif
