@@ -23,10 +23,25 @@ let s:default_defs = {
     \ ['longrightarrow', 'Longrightarrow', 'rightarrow', 'Rightarrow'],
     \ ['itemize', 'enumerate', 'description'],
     \ ['\begin', '\end'],
+    \ ['{equation}', '{equation*}'],
+    \ ['{eqnarray}', '{eqnarray*}'],
+    \ ['{align}', '{align*}'],
+    \ ['\cite{', '\ref{'],
+    \ { 'cyclic': 0,
+      \ 'def' : ['\!', '\,', '\>', '\;', '\ ', 'quad', 'qquad'],
+    \},
+    \],
+\ 'python' : [
+    \ ['True', 'False'],
+    \],
+\ 'c' : [
+    \ [ {'pattern': '\(\k\+\)\.', 'replace': '\1.'},
+    \   {'pattern': '\(\k\+\)->', 'replace': '\1->'}],
     \],
 \}
 
-function! s:escape(pattern) " {{{
+
+function! s:escape(pattern) abort " {{{
     return escape(a:pattern, '\~ .*^[''$')
 endfunction " }}}
 
@@ -56,7 +71,7 @@ function! s:is_nomatch(m) abort " {{{
 endfunction " }}}
 
 function! s:match(conf) abort " {{{
-  let col = col('.')
+  let col = col('.') - 1
   let line = getline('.')
   for i in range(len(a:conf.def))
     let d = a:conf.def[i]
@@ -67,10 +82,11 @@ function! s:match(conf) abort " {{{
         break
       endif
       let l2 = matchend(line, d.pattern, l1)
-      if col <= l2
+      if col < l2
         let text = substitute(line[l1 : l2-1], d.pattern, '\=submatch(1)', '')
         return {'start': l1, 'end': l2, 'len': l2-l1, 'index': i, 'conf': a:conf, 'text': text}
       endif
+      let l1 += 1
     endwhile
   endfor
   return s:no_match
@@ -139,6 +155,22 @@ function! s:def_normalize_elm(d) abort " {{{
   endif
 endfunction " }}}
 
+function! s:cmp_match(m1, m2) abort " {{{
+  if s:is_nomatch(a:m1)
+    return 1
+  elseif  s:is_nomatch(a:m2)
+    return -1
+  endif
+
+  if a:m1.start != a:m2.start
+    " なるべくカーソル側
+    return a:m2.start - a:m1.start
+  else
+    " なるべく小さいもの. 大きい物はカーソルを移動すれば対象になる
+    return a:m1.end - a:m2.end
+  endif
+endfunction " }}}
+
 function! clurin#pa(cnt, rev) abort " {{{
   silent! normal! zO
 
@@ -147,10 +179,8 @@ function! clurin#pa(cnt, rev) abort " {{{
   for d in defs
     let dm = s:def_normalize(d)
     let m = s:match(dm)
-    if !s:is_nomatch(m)
-      " 前優先
+    if s:cmp_match(mb, m) > 0
       let mb = m
-      break
     endif
     unlet d
   endfor
