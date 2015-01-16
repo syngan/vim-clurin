@@ -3,6 +3,7 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+" default_def {{{
 " May でぼける悲しみ.
 "   \ ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 let s:default_defs = {
@@ -18,7 +19,7 @@ let s:default_defs = {
     \ { 'cyclic': 0,
       \ 'def' : ['tiny', 'scriptsize', 'footnotesize', 'small', 'normalsize', 'large', 'Large', 'LARGE', 'huge', 'Huge'],
     \},
-    \ ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'],
+    \ ['\alpha', '\beta', '\gamma', '\delta', '\epsilon', '\zeta', '\eta', '\theta', '\iota', '\kappa', '\lambda', '\mu', '\nu', '\xi', '\pi', '\rho', '\sigma', '\tau', '\upsilon', '\phi', '\chi', '\psi', '\omega'],
     \ ['leftarrow', 'Leftarrow', 'longleftarrow', 'Longleftarrow'],
     \ ['longrightarrow', 'Longrightarrow', 'rightarrow', 'Rightarrow'],
     \ ['itemize', 'enumerate', 'description'],
@@ -33,13 +34,15 @@ let s:default_defs = {
     \],
 \ 'python' : [
     \ ['True', 'False'],
+    \ ['and', 'or'],
     \],
 \ 'c' : [
+    \ ['&&', '||'],
     \ [ {'pattern': '\(\k\+\)\.', 'replace': '\1.'},
     \   {'pattern': '\(\k\+\)->', 'replace': '\1->'}],
     \],
 \}
-
+" }}}
 
 function! s:escape(pattern) abort " {{{
     return escape(a:pattern, '\~ .*^[''$')
