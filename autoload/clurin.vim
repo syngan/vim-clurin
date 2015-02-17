@@ -32,7 +32,7 @@ let s:default_defs = {
     \ ['\cap', '\cup'],
     \ ['\sum', '\Sum'],
     \ { 'cyclic': 0,
-      \ 'def' : ['\!', '\,', '\>', '\;', '\ ', 'quad', 'qquad'],
+      \ 'def' : ['\!', '\,', '\>', '\;', '\ ', '\quad', '\qquad'],
     \},
     \],
 \ 'python' : [
