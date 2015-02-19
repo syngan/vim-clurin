@@ -3,11 +3,16 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! s:countup(str, cnt, ...) abort " {{{
+  return str2nr(a:str) + a:cnt
+endfunction " }}}
+
 " default_def {{{
 " May でぼける悲しみ.
 "   \ ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 let s:default_defs = {
 \ '-' : [
+    \ [{'pattern': '\(-\?\d\+\)', 'replace': function('s:countup')}],
     \ ['true', 'false'],
     \ ['on', 'off'],
     \ ['enable', 'disable'],
@@ -114,11 +119,8 @@ function! s:mod(a, b) abort " {{{
 endfunction " }}}
 
 function! s:replace(m, cnt, rev) abort " {{{
-  if a:rev
-    let idx = a:m.index - a:cnt
-  else
-    let idx = a:m.index + a:cnt
-  endif
+  let c = a:rev ? -a:cnt : a:cnt
+  let idx = a:m.index + c
   if get(a:m.conf, 'cyclic', 1)
     let idx = s:mod(idx, len(a:m.conf.def))
   elseif idx < 0
@@ -128,7 +130,11 @@ function! s:replace(m, cnt, rev) abort " {{{
   endif
 
   let d = a:m.conf.def[idx]
-  let str = substitute(d.replace, '\\1', a:m.text, 'g')
+  if type(d.replace) == type(function('tr'))
+    let str = d.replace(a:m.text, c, d)
+  else
+    let str = substitute(d.replace, '\\1', a:m.text, 'g')
+  endif
   let line = getline('.')
   let pre = a:m.start < 1 ? '' : line[: a:m.start - 1]
   let line = pre . str . line[a:m.end :]
