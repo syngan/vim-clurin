@@ -13,8 +13,12 @@ nmap - <Plug>(clurin-prev)
 ```vim
 let g:clurin#config = {
 \  '-': [[
+\		{'pattern': '\(-\?\d\+\)', 'replace': function(g:CountUp)},
+\   ], [
 \		{'pattern': '\<true\>', 'replace': 'true'},
 \		{'pattern': '\<false\>', 'replace': 'false'},
+\   ], [
+\      'on', 'off'
 \   ]], 
 \  'vim': [[
 \		{'pattern': '''\(\k\+\)''', 'replace': '''\1'''},
@@ -27,6 +31,13 @@ let g:clurin#config = {
 \         {'pattern': '\(\k\+\)->', 'replace': '\1->'},
 \   ]],
 \}
+
+function! g:CountUp(str, cnt, def) abort
+  " a:str: matched_text
+  " a:cnt: non zero.
+  " a:def: definition
+  return str2nr(a:str) + a:cnt
+endfunction
 ```
 
 # Similar work
