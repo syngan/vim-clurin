@@ -43,6 +43,7 @@ let s:default_defs = {
 \ 'python' : [
     \ ['True', 'False'],
     \ ['and', 'or'],
+    \ ['release', 'acquire'],
     \],
 \ 'c' : [
     \ ['&&', '||'],
