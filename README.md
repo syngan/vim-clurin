@@ -13,7 +13,7 @@ nmap - <Plug>(clurin-prev)
 ```vim
 let g:clurin#config = {
 \  '-': [[
-\		{'pattern': '\(-\?\d\+\)', 'replace': function(g:CountUp)},
+\		{'pattern': '\(-\?\d\+\)', 'replace': function('g:CountUp')},
 \   ], [
 \		{'pattern': '\<true\>', 'replace': 'true'},
 \		{'pattern': '\<false\>', 'replace': 'false'},
