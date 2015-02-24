@@ -119,8 +119,8 @@ function! s:mod(a, b) abort " {{{
   endif
 endfunction " }}}
 
-function! s:replace(m, cnt, rev) abort " {{{
-  let c = a:rev ? -a:cnt : a:cnt
+function! s:replace(m, cnt) abort " {{{
+  let c = a:cnt
   let idx = a:m.index + c
   if get(a:m.conf, 'cyclic', 1)
     let idx = s:mod(idx, len(a:m.conf.def))
@@ -184,7 +184,7 @@ function! s:cmp_match(m1, m2) abort " {{{
   endif
 endfunction " }}}
 
-function! clurin#pa(cnt, rev) abort " {{{
+function! clurin#pa(cnt) abort " {{{
   silent! normal! zO
 
   let defs = s:getdefs()
@@ -203,9 +203,9 @@ function! clurin#pa(cnt, rev) abort " {{{
   endif
 
 "  let g:clurin#matchdef = mb " @debug
-  call s:replace(mb, a:cnt, a:rev)
+  call s:replace(mb, a:cnt)
 
-  silent! call repeat#set(printf(":call clurin#pa(%d,%d)\<CR>", a:cnt, a:rev))
+  silent! call repeat#set(printf(":call clurin#pa(%d)\<CR>", a:cnt))
   return 1
 endfunction " }}}
 
