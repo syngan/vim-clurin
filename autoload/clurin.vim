@@ -68,7 +68,11 @@ function! s:getdefs() abort " {{{
   for d in p
     for ft in [&filetype, '-']
       if has_key(d, ft)
-        call extend(defs, d[ft])
+        if type(d[ft]) == type({}) && has_key(d[ft], 'def')
+          call extend(defs, d[ft].def)
+        else
+          call extend(defs, d[ft])
+        endif
       endif
     endfor
   endfor
@@ -184,6 +188,22 @@ function! s:cmp_match(m1, m2) abort " {{{
   endif
 endfunction " }}}
 
+function! s:do_nomatch(cnt) abort " {{{
+  if !exists('g:clurin#config')
+    return 0
+  endif
+
+  let d = g:clurin#config
+  for ft in [&filetype, '-']
+    if has_key(d, ft)
+      if type(d[ft]) == type({}) && has_key(d[ft], 'nomatch') &&
+            \ type(d[ft]['nomatch']) == type(function('tr'))
+        return d[ft]['nomatch'](a:cnt)
+      endif
+    endif
+  endfor
+endfunction " }}}
+
 function! clurin#pa(cnt) abort " {{{
   silent! normal! zO
 
@@ -199,7 +219,7 @@ function! clurin#pa(cnt) abort " {{{
   endfor
 
   if s:is_nomatch(mb)
-    return 0
+    return s:do_nomatch(a:cnt)
   endif
 
 "  let g:clurin#matchdef = mb " @debug
