@@ -86,7 +86,7 @@ function! s:is_nomatch(m) abort " {{{
   return a:m == s:no_match
 endfunction " }}}
 
-function! s:match(conf) abort " {{{
+function! s:nmatch(conf) abort " {{{
   let col = col('.') - 1
   let line = getline('.')
   for i in range(len(a:conf.def))
@@ -106,6 +106,41 @@ function! s:match(conf) abort " {{{
     endwhile
   endfor
   return s:no_match
+endfunction " }}}
+
+function! s:vmatch(conf) abort " {{{
+  let save_reg = [getreg('"'), getregtype('"')]
+
+  try
+    execute 'normal!' 'gvy'
+    let pos1 = getpos('''[')
+    let pos2 = getpos(''']')
+    let text = getreg('"')
+    if text =~# '\n'
+      " unsupported
+      return s:no_match
+    endif
+
+    for i in range(len(a:conf.def))
+      let d = a:conf.def[i]
+      let pattern = d.pattern
+      if pattern[0] !=# '^'
+        let pattern = '^' . pattern
+      endif
+      if pattern[len(pattern)-1] !=# '$'
+        let pattern .= '$'
+      endif
+      if text =~# pattern
+        let l1 = pos1[2]-1
+        let l2 = pos2[2]
+        let text = substitute(text, pattern, '\=submatch(1)', '')
+        return {'start': l1, 'end': l2, 'len': l2-l1, 'index': i, 'conf': a:conf, 'text': text}
+      endif
+    endfor
+    return s:no_match
+  finally
+    call setreg('"', save_reg[0], save_reg[1])
+  endtry
 endfunction " }}}
 
 function! s:mod(a, b) abort " {{{
@@ -204,14 +239,20 @@ function! s:do_nomatch(cnt) abort " {{{
   endfor
 endfunction " }}}
 
-function! clurin#pa(cnt) abort " {{{
+function! clurin#pa(cnt, mode) abort " {{{
   silent! normal! zO
+
+  if a:mode
+    let Fmatch = function('s:vmatch')
+  else
+    let Fmatch = function('s:nmatch')
+  endif
 
   let defs = s:getdefs()
   let mb = s:no_match
   for d in defs
     let dm = s:def_normalize(d)
-    let m = s:match(dm)
+    let m = Fmatch(dm)
     if s:cmp_match(mb, m) > 0
       let mb = m
     endif
