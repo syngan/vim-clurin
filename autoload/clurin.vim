@@ -22,7 +22,7 @@ let s:default_defs = {
     \],
 \ 'tex' : [
     \ { 'cyclic': 0,
-      \ 'def' : ['tiny', 'scriptsize', 'footnotesize', 'small', 'normalsize', 'large', 'Large', 'LARGE', 'huge', 'Huge'],
+      \ 'group' : ['tiny', 'scriptsize', 'footnotesize', 'small', 'normalsize', 'large', 'Large', 'LARGE', 'huge', 'Huge'],
     \},
     \ ['\alpha', '\beta', '\gamma', '\delta', '\epsilon', '\zeta', '\eta', '\theta', '\iota', '\kappa', '\lambda', '\mu', '\nu', '\xi', '\pi', '\rho', '\sigma', '\tau', '\upsilon', '\phi', '\chi', '\psi', '\omega'],
     \ ['leftarrow', 'Leftarrow', 'longleftarrow', 'Longleftarrow'],
@@ -37,7 +37,7 @@ let s:default_defs = {
     \ ['\cap', '\cup'],
     \ ['\sum', '\Sum'],
     \ { 'cyclic': 0,
-      \ 'def' : ['\!', '\,', '\>', '\;', '\ ', '\quad', '\qquad'],
+      \ 'group' : ['\!', '\,', '\>', '\;', '\ ', '\quad', '\qquad'],
     \},
     \],
 \ 'python' : [
@@ -58,23 +58,36 @@ function! s:escape(pattern) abort " {{{
 endfunction " }}}
 
 function! s:getdefs() abort " {{{
+  let p = []
   if has_key(g:, 'clurin#config') && type(g:clurin#config) == type({})
-    let p = [g:clurin#config, s:default_defs]
+    let conf = g:clurin#config
   else
-    let p = [s:default_defs]
+    let conf = s:default_defs
   endif
+  let q = []
+  let p = []
+  for ft in [&filetype, '-']
+    if has_key(conf, ft)
+      call add(p, conf[ft])
+      if get(conf, 'use_default', 1) && has_key(s:default_defs, ft) &&
+            \ conf != s:default_defs
+        call add(q, s:default_defs[ft])
+      endif
+      if !get(conf, 'use_default_user', 1)
+        break
+      endif
+    endif
+  endfor
+  call extend(p, q)
 
   let defs = []
   for d in p
-    for ft in [&filetype, '-']
-      if has_key(d, ft)
-        if type(d[ft]) == type({}) && has_key(d[ft], 'def')
-          call extend(defs, d[ft].def)
-        else
-          call extend(defs, d[ft])
-        endif
-      endif
-    endfor
+    if type(d) == type({}) && has_key(d, 'def')
+      call extend(defs, d.def)
+    elseif type(d) == type([])
+      call extend(defs, d)
+    endif
+    unlet d
   endfor
 
   return defs
@@ -89,8 +102,8 @@ endfunction " }}}
 function! s:nmatch(conf) abort " {{{
   let col = col('.') - 1
   let line = getline('.')
-  for i in range(len(a:conf.def))
-    let d = a:conf.def[i]
+  for i in range(len(a:conf.group))
+    let d = a:conf.group[i]
     let l1 = -1
     while 1
       let l1 = match(line, d.pattern, l1)
@@ -121,8 +134,8 @@ function! s:vmatch(conf) abort " {{{
       return s:no_match
     endif
 
-    for i in range(len(a:conf.def))
-      let d = a:conf.def[i]
+    for i in range(len(a:conf.group))
+      let d = a:conf.group[i]
       let pattern = d.pattern
       if pattern[0] !=# '^'
         let pattern = '^' . pattern
@@ -162,14 +175,14 @@ function! s:replace(m, cnt) abort " {{{
   let c = a:cnt
   let idx = a:m.index + c
   if get(a:m.conf, 'cyclic', 1)
-    let idx = s:mod(idx, len(a:m.conf.def))
+    let idx = s:mod(idx, len(a:m.conf.group))
   elseif idx < 0
     let idx = 0
-  elseif idx >= len(a:m.conf.def)
-    let idx = len(a:m.conf.def) - 1
+  elseif idx >= len(a:m.conf.group)
+    let idx = len(a:m.conf.group) - 1
   endif
 
-  let d = a:m.conf.def[idx]
+  let d = a:m.conf.group[idx]
   if type(d.replace) == type(function('tr'))
     let str = d.replace(a:m.text, c, d)
   else
@@ -181,21 +194,18 @@ function! s:replace(m, cnt) abort " {{{
   call setline('.', line)
 endfunction " }}}
 
-function! s:def_normalize(d) abort " {{{
-  if type(a:d) == type({})
-    if !has_key(a:d, 'def')
-      return {}
-    endif
-    let a:d.def = map(a:d.def, 's:def_normalize_elm(v:val)')
+function! s:group_normalize(d) abort " {{{
+  if type(a:d) == type([])
+    return {'group' : map(a:d, 's:group_normalize_elm(v:val)') }
+  elseif type(a:d) == type({}) && has_key(a:d, 'group')
+    let a:d.group = map(a:d.group, 's:group_normalize_elm(v:val)')
     return a:d
-  elseif type(a:d) == type([])
-    return {'def' : map(a:d, 's:def_normalize_elm(v:val)') }
   else
     return {}
   endif
 endfunction " }}}
 
-function! s:def_normalize_elm(d) abort " {{{
+function! s:group_normalize_elm(d) abort " {{{
   if type(a:d) == type('')
     if a:d =~# '^\k\+$'
       return {'pattern': printf('\<\(%s\)\>', s:escape(a:d)), 'replace': a:d}
@@ -251,7 +261,7 @@ function! clurin#pa(cnt, mode) abort " {{{
   let defs = s:getdefs()
   let mb = s:no_match
   for d in defs
-    let dm = s:def_normalize(d)
+    let dm = s:group_normalize(d)
     let m = Fmatch(dm)
     if s:cmp_match(mb, m) > 0
       let mb = m
