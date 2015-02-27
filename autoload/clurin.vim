@@ -36,6 +36,8 @@ let s:default_defs = {
     \ ['\land', '\lor'],
     \ ['\cap', '\cup'],
     \ ['\sum', '\Sum'],
+    \ ['plain', 'alpha', 'abbrv', 'unstr'],
+    \ ['jplain', 'jalpha', 'jabbrv', 'junstr'],
     \ { 'cyclic': 0,
       \ 'group' : ['\!', '\,', '\>', '\;', '\ ', '\quad', '\qquad'],
     \},
