@@ -22,7 +22,7 @@ let s:default_defs = {
     \],
 \ 'tex' : [
     \ { 'cyclic': 0,
-      \ 'group' : ['tiny', 'scriptsize', 'footnotesize', 'small', 'normalsize', 'large', 'Large', 'LARGE', 'huge', 'Huge'],
+      \ 'group' : ['\tiny', '\scriptsize', '\footnotesize', '\small', '\normalsize', '\large', '\Large', '\LARGE', '\huge', '\Huge'],
     \},
     \ ['\alpha', '\beta', '\gamma', '\delta', '\epsilon', '\zeta', '\eta', '\theta', '\iota', '\kappa', '\lambda', '\mu', '\nu', '\xi', '\pi', '\rho', '\sigma', '\tau', '\upsilon', '\phi', '\chi', '\psi', '\omega'],
     \ ['leftarrow', 'Leftarrow', 'longleftarrow', 'Longleftarrow'],
@@ -36,8 +36,8 @@ let s:default_defs = {
     \ ['\land', '\lor'],
     \ ['\cap', '\cup'],
     \ ['\sum', '\Sum'],
-    \ ['plain', 'alpha', 'abbrv', 'unstr'],
-    \ ['jplain', 'jalpha', 'jabbrv', 'junstr'],
+    \ ['{plain}', '{alpha}', '{abbrv}', '{unstr}'],
+    \ ['{jplain}', '{jalpha}', '{jabbrv}', '{junstr}'],
     \ { 'cyclic': 0,
       \ 'group' : ['\!', '\,', '\>', '\;', '\ ', '\quad', '\qquad'],
     \},
@@ -78,6 +78,8 @@ function! s:getdefs() abort " {{{
       if !get(conf, 'use_default_user', 1)
         break
       endif
+    elseif has_key(s:default_defs, ft)
+      call add(q, s:default_defs[ft])
     endif
   endfor
   call extend(p, q)
