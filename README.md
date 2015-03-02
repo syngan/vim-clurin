@@ -6,9 +6,36 @@ vim-clurin
 ```vim
 nmap + <Plug>(clurin-next)
 nmap - <Plug>(clurin-prev)
+vmap + <Plug>(clurin-next)
+vmap - <Plug>(clurin-prev)
 ```
 
 # customize
+
+```
+g:clurin#config: Dictionary of Dictionary. key: - or 'filetype'
+
+	def			(List of GROUP, required)
+	use_default		(Bool, 1)
+	use_default_user	(Bool, 1)
+	nomatch  (Funcref({cnt}), none)
+
+GROUP:: Dictionary or group
+		cyclic			(Bool, 1)
+		group			(List of Dictionary or Strings)
+			Dictionary:
+				pattern		(String)
+				replace		(String or Funcref({str},{cnt},{def}))
+					{str}: matched text
+					{cnt}: count
+					{def}: normalized def.
+			String {s}
+				string. NOTE: cannot use regexp .
+				 -> {'pattern': '\<\({s}\)\>', 'replace' '{s}'} ({s}='^\k\+$') or
+				    {'pattern': '\({s}\)', 'replace' '{s}'}
+```
+
+## example
 
 ```vim
 function! g:CountUp(str, cnt, def) abort
@@ -46,9 +73,8 @@ let g:clurin#config = {
 \       {'pattern': '\(\k\+\)->', 'replace': '\1->'},
 \     ]], 'nomatch': function('g:CtrlAX')},
 \}
-
-
 ```
+
 
 # Similar work
 
