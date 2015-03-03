@@ -1,6 +1,8 @@
 vim-clurin
 =====================
 
+[![Build Status](https://travis-ci.org/syngan/vim-clurin.svg?branch=master)](https://travis-ci.org/syngan/vim-clurin)
+
 # usage
 
 ```vim
