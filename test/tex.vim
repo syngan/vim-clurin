@@ -19,7 +19,7 @@ function! s:suite.after_each() " {{{
 endfunction " }}}
 
 function! s:suite.bib() " {{{
-  unlet! g:clurin#config
+  unlet! g:clurin
   let bib = ['plain', 'alpha', 'abbrv', 'unstr']
   for pre in ['', 'j']
     call setline(1, printf('{%s%s}', pre, bib[0]))
@@ -33,7 +33,7 @@ endfunction " }}}
 
 function! s:suite.fontsize() " {{{
   " non cyclic
-  unlet! g:clurin#config
+  unlet! g:clurin
   let size =  ['\tiny', '\scriptsize', '\footnotesize', '\small', '\normalsize', '\large', '\Large', '\LARGE', '\huge', '\Huge']
   for i in range(len(size))
     call setline(1, size[i])

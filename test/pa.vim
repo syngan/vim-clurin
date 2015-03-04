@@ -30,7 +30,7 @@ function! s:suite.after_each()
 endfunction
 
 function! s:suite.truefalse()
-  let g:clurin#config = {'-': {'def': [['true', 'false']]}}
+  let g:clurin = {'-': {'def': [['true', 'false']]}}
   let line = s:lines[1]
   for cnt in ['','1','2','3']
     for typ in ['+', '-']

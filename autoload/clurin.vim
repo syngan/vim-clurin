@@ -61,8 +61,8 @@ endfunction " }}}
 
 function! s:getdefs() abort " {{{
   let p = []
-  if has_key(g:, 'clurin#config') && type(g:clurin#config) == type({})
-    let conf = g:clurin#config
+  if has_key(g:, 'clurin') && type(g:clurin) == type({})
+    let conf = g:clurin
   else
     let conf = s:default_defs
   endif
@@ -238,11 +238,11 @@ function! s:cmp_match(m1, m2) abort " {{{
 endfunction " }}}
 
 function! s:do_nomatch(cnt) abort " {{{
-  if !exists('g:clurin#config')
+  if !exists('g:clurin')
     return 0
   endif
 
-  let d = g:clurin#config
+  let d = g:clurin
   for ft in [&filetype, '-']
     if has_key(d, ft)
       if type(d[ft]) == type({}) && has_key(d[ft], 'nomatch') &&
