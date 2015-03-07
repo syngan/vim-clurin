@@ -78,6 +78,36 @@ let g:clurin = {
 ```
 
 
+## receipt
+
+ruby string: 'string' -> "string" -> :string
+```vim
+\     [
+\       {'pattern': '''\(\k\+\)''', 'replace': '''\1'''},
+\       {'pattern': '"\(\k\+\)"', 'replace': '"\1"'},
+\       {'pattern': ':\(\k\+\)"', 'replace': ':\1'},
+\     ]
+```
+
+closure string: 'string -> "string" -> :string
+```vim
+\     [
+\       {'pattern': '''\(\k\+\)', 'replace': '''\1'},
+\       {'pattern': '"\(\k\+\)"', 'replace': '"\1"'},
+\       {'pattern': ':\(\k\+\)"', 'replace': ':\1'},
+\     ]
+```
+
+vim dictionary: ['key'] -> ["key"] -> .key
+```vim
+\     [
+\       {'pattern': '\[''\(\k\+\)''\]', 'replace': '[''\1'']'},
+\       {'pattern': '\["\(\k\+\)"\]',   'replace': '["\1"]'},
+\       {'pattern': '\.\(\k\+\)',       'replace': '.\1'},
+\     ]
+```
+
+
 # Similar work
 
 - [switch.vim](https://github.com/AndrewRadev/switch.vim)
