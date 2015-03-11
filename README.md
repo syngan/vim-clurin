@@ -21,6 +21,7 @@ g:clurin: Dictionary of Dictionary. key: - or 'filetype'
 	use_default		(Bool, 1)
 	use_default_user	(Bool, 1)
 	nomatch  (Funcref({cnt}), none)
+	jump     (Bool, 0)  0: under the cursor, otherwise: after the cursor
 
 GROUP:: Dictionary or group
 	cyclic			(Bool, 1)

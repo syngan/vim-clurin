@@ -103,7 +103,7 @@ function! s:is_nomatch(m) abort " {{{
   return a:m == s:no_match
 endfunction " }}}
 
-function! s:nmatch(conf) abort " {{{
+function! s:nmatch(conf, config) abort " {{{
   let col = col('.') - 1
   let line = getline('.')
   for i in range(len(a:conf.group))
@@ -111,7 +111,7 @@ function! s:nmatch(conf) abort " {{{
     let l1 = -1
     while 1
       let l1 = match(line, d.pattern, l1)
-      if l1 < 0 || l1 > col
+      if l1 < 0 || (l1 > col && !a:config.jump)
         break
       endif
       let l2 = matchend(line, d.pattern, l1)
@@ -125,7 +125,7 @@ function! s:nmatch(conf) abort " {{{
   return s:no_match
 endfunction " }}}
 
-function! s:vmatch(conf) abort " {{{
+function! s:vmatch(conf, ...) abort " {{{
   let save_reg = [getreg('"'), getregtype('"')]
 
   try
@@ -237,20 +237,24 @@ function! s:cmp_match(m1, m2) abort " {{{
   endif
 endfunction " }}}
 
-function! s:do_nomatch(cnt) abort " {{{
-  if !exists('g:clurin')
-    return 0
+function! s:do_nomatch(cnt, config) abort " {{{
+  if has_key(a:config, 'nomatch') && type(a:config['nomatch']) == type(function('tr'))
+    return a:config['nomatch'](a:cnt)
+  endif
+endfunction " }}}
+
+function! s:config() abort " {{{
+  let config = {'jump': 0}
+  if exists('g:clurin') && type(g:clurin) == type({})
+    let d = g:clurin
+    for ft in ['-', &filetype]
+      if has_key(d, ft) && type(d[ft]) == type({})
+        let config = extend(config, d[ft], 'force')
+      endif
+    endfor
   endif
 
-  let d = g:clurin
-  for ft in [&filetype, '-']
-    if has_key(d, ft)
-      if type(d[ft]) == type({}) && has_key(d[ft], 'nomatch') &&
-            \ type(d[ft]['nomatch']) == type(function('tr'))
-        return d[ft]['nomatch'](a:cnt)
-      endif
-    endif
-  endfor
+  return config
 endfunction " }}}
 
 function! clurin#pa(cnt, mode) abort " {{{
@@ -264,9 +268,10 @@ function! clurin#pa(cnt, mode) abort " {{{
 
   let defs = s:getdefs()
   let mb = s:no_match
+  let config = s:config()
   for d in defs
     let dm = s:group_normalize(d)
-    let m = Fmatch(dm)
+    let m = Fmatch(dm, config)
     if s:cmp_match(mb, m) > 0
       let mb = m
     endif
@@ -274,11 +279,14 @@ function! clurin#pa(cnt, mode) abort " {{{
   endfor
 
   if s:is_nomatch(mb)
-    return s:do_nomatch(a:cnt)
+    return s:do_nomatch(a:cnt, config)
   endif
 
-"  let g:clurin#matchdef = mb " @debug
+" let g:clurin#matchdef = mb " @debug
   call s:replace(mb, a:cnt)
+  if config.jump
+    call setpos('.', [0, line('.'), mb.start+1, 0])
+  endif
 
   silent! call repeat#set(printf(":call clurin#pa(%d)\<CR>", a:cnt))
   return 1
