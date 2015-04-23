@@ -28,6 +28,7 @@ let s:default_defs = {
     \ ['leftarrow', 'Leftarrow', 'longleftarrow', 'Longleftarrow'],
     \ ['longrightarrow', 'Longrightarrow', 'rightarrow', 'Rightarrow'],
     \ ['itemize', 'enumerate', 'description'],
+    \ ['\iftrue', '\iffalse'],
     \ ['\begin', '\end'],
     \ ['{equation}', '{equation*}'],
     \ ['{eqnarray}', '{eqnarray*}'],
@@ -221,14 +222,19 @@ function! s:group_normalize_elm(d) abort " {{{
   endif
 endfunction " }}}
 
-function! s:cmp_match(m1, m2) abort " {{{
+function! s:cmp_match(m1, m2, config) abort " {{{
   if s:is_nomatch(a:m1)
     return 1
   elseif  s:is_nomatch(a:m2)
     return -1
   endif
 
-  if a:m1.start != a:m2.start
+  let col = col('.') - 1
+  " カーソルが両方とも乗っているなら, なるべくカーソル側.
+  " それ以外は小さい方
+  if a:config.jump && (a:m1.start > col || a:m2.start > col)
+      return a:m1.start - a:m2.start
+    elseif a:m1.start != a:m2.start
     " なるべくカーソル側
     return a:m2.start - a:m1.start
   else
@@ -269,10 +275,11 @@ function! clurin#pa(cnt, mode) abort " {{{
   let defs = s:getdefs()
   let mb = s:no_match
   let config = s:config()
+
   for d in defs
     let dm = s:group_normalize(d)
     let m = Fmatch(dm, config)
-    if s:cmp_match(mb, m) > 0
+    if s:cmp_match(mb, m, config) > 0
       let mb = m
     endif
     unlet d
