@@ -6,7 +6,7 @@ set cpo&vim
 let s:suite = themis#suite('nomatch')
 let s:assert = themis#helper('assert')
 
-function! s:CtrlAX(cnt) abort
+function! g:CtrlAX(cnt) abort
 	if a:cnt >= 0
 		execute 'normal!' a:cnt . "\<C-A>"
 	else
@@ -14,8 +14,8 @@ function! s:CtrlAX(cnt) abort
 	endif
 endfunction
 
-function! s:CtrlAX2(cnt) abort
-  return s:CtrlAX(-a:cnt)
+function! g:CtrlAX2(cnt) abort
+  return g:CtrlAX(-a:cnt)
 endfunction
 
 function! s:suite.before() " {{{
@@ -32,8 +32,8 @@ endfunction " }}}
 
 function! s:suite.def_ft() " {{{
   let g:clurin = {
-\   '-'  : {'nomatch': function('s:CtrlAX'), 'use_default': 0},
-\   'boo': {'nomatch': function('s:CtrlAX2'), 'use_default': 0},
+\   '-'  : {'nomatch': function('g:CtrlAX'), 'use_default': 0},
+\   'boo': {'nomatch': function('g:CtrlAX2'), 'use_default': 0},
 \ }
 
   let str = 'hhhh 123 456 ggggg'
@@ -52,7 +52,7 @@ endfunction " }}}
 
 function! s:suite.def_def() " {{{
   let g:clurin = {
-\   '-'  : {'nomatch': function('s:CtrlAX'), 'use_default': 0},
+\   '-'  : {'nomatch': function('g:CtrlAX'), 'use_default': 0},
 \   'boo': {'use_default': 0},
 \ }
 
