@@ -267,9 +267,9 @@ function! clurin#pa(cnt, mode) abort " {{{
   silent! normal! zO
 
   if a:mode
-    let Fmatch = function('s:vmatch')
+    let l:Fmatch = function('s:vmatch')
   else
-    let Fmatch = function('s:nmatch')
+    let l:Fmatch = function('s:nmatch')
   endif
 
   let defs = s:getdefs()
