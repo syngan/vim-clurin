@@ -20,7 +20,7 @@ endfunction " }}}
 
 function! s:suite.bib() " {{{
   unlet! g:clurin
-  let bib = ['plain', 'alpha', 'abbrv', 'unstr']
+  let bib = ['plain', 'alpha', 'abbrv', 'unsrt']
   for pre in ['', 'j']
     call setline(1, printf('{%s%s}', pre, bib[0]))
     for i in range(len(bib)-1)
