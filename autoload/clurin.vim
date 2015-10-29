@@ -40,6 +40,7 @@ let s:default_defs = {
     \ ['\langle', '\rangle'],
     \ ['\lbrace', '\rbrace'],
     \ ['\{', '\}'],
+    \ ['\label', '\ref'],
     \ ['{plain}', '{alpha}', '{abbrv}', '{unsrt}'],
     \ ['{jplain}', '{jalpha}', '{jabbrv}', '{junsrt}'],
     \ { 'cyclic': 0,
