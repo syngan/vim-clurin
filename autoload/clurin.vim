@@ -217,9 +217,9 @@ endfunction " }}}
 function! s:group_normalize_elm(d) abort " {{{
   if type(a:d) == type('')
     if a:d =~# '^\k\+$'
-      return {'pattern': printf('\<\(%s\)\>', s:escape(a:d)), 'replace': a:d}
+      return {'pattern': printf('\<\(%s\)\>\C', s:escape(a:d)), 'replace': a:d}
     else
-      return {'pattern': printf('\(%s\)', s:escape(a:d)), 'replace': a:d}
+      return {'pattern': printf('\(%s\)\C', s:escape(a:d)), 'replace': a:d}
     endif
   else
     return a:d
