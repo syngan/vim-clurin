@@ -8,8 +8,8 @@ set cpo&vim
 command! -count=1 -bang ClurinNext :call clurin#pa((<bang>1 ? 1 : -1) * v:count1, 0)
 command! -count=1 -bang ClurinPrev :call clurin#pa((<bang>0 ? 1 : -1) * v:count1, 0)
 
-nnoremap <silent> <Plug>(clurin-next) :ClurinNext<CR>
-nnoremap <silent> <Plug>(clurin-prev) :ClurinPrev<CR>
+nnoremap <silent> <Plug>(clurin-next) :<C-u>ClurinNext<CR>
+nnoremap <silent> <Plug>(clurin-prev) :<C-u>ClurinPrev<CR>
 vnoremap <silent> <Plug>(clurin-next) :call clurin#pa(+v:count1, 1)<CR>
 vnoremap <silent> <Plug>(clurin-prev) :call clurin#pa(-v:count1, 1)<CR>
 
