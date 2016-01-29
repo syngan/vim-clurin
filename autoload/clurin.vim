@@ -47,6 +47,9 @@ let s:default_defs = {
       \ 'group' : ['\!', '\,', '\>', '\;', '\ ', '\quad', '\qquad'],
     \},
     \],
+\ 'bib' : [
+    \ ['jan', 'feb', 'mar', 'apl', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'],
+  \],
 \ 'python' : [
     \ ['True', 'False'],
     \ ['and', 'or'],
