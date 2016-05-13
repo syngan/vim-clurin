@@ -76,6 +76,9 @@ function! s:getdefs() abort " {{{
   endif
   let q = []
   let p = []
+  if has_key(b:, 'clurin')
+    call add(p, b:clurin)
+  endif
   for ft in [&filetype, '-']
     if has_key(conf, ft)
       call add(p, conf[ft])
