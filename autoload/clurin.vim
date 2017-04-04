@@ -200,6 +200,9 @@ function! s:replace(m, cnt) abort " {{{
   let d = a:m.conf.group[idx]
   if type(d.replace) == type(function('tr'))
     let str = d.replace(a:m.text, c, d)
+    if get(a:m.conf, 'quit', 0)
+      return
+    endif
   else
     let str = substitute(d.replace, '\\1', a:m.text, 'g')
   endif
