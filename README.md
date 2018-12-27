@@ -79,7 +79,7 @@ let g:clurin = {
 ```
 
 
-## receipt
+## recipe
 
 ruby string: 'string' -> "string" -> :string
 ```vim
